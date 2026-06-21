@@ -1,0 +1,171 @@
+/* ── Buttons ─────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+  user-select: none;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:hover { transform: scale(1.04); }
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(74,144,226,0.35);
+}
+.btn-primary:hover { background: #3a7bd5; box-shadow: 0 6px 18px rgba(74,144,226,0.45); }
+
+.btn-secondary {
+  background: var(--color-card);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.btn-secondary:hover { background: #EEF5FF; }
+
+.btn-success {
+  background: var(--color-success);
+  color: #fff;
+}
+.btn-success:hover { background: #4cae4c; }
+
+.btn-danger {
+  background: #FFEBEE;
+  color: var(--color-error);
+  border-color: var(--color-error);
+  width: 100%;
+  padding: 0.8rem;
+}
+.btn-danger:hover { background: #FFCDD2; }
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Card ────────────────────────────────────────────── */
+
+.card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1rem;
+}
+
+/* ── Progress Bar ─────────────────────────────────────── */
+
+.progress-bar {
+  height: 10px;
+  background: var(--color-border);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), #6AB4F5);
+  border-radius: 5px;
+  transition: width 0.5s ease;
+}
+
+/* ── Tab Nav ─────────────────────────────────────────── */
+
+.tab-nav {
+  display: flex;
+  flex-direction: row;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--color-card);
+  border-top: 1px solid var(--color-border);
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+  height: var(--nav-height);
+  z-index: 50;
+  justify-content: space-around;
+  align-items: stretch;
+  padding: 0;
+}
+
+.tab-nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  color: var(--color-text-light);
+  text-decoration: none;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.6rem 0.5rem;
+  flex: 1;
+  transition: color var(--transition);
+  position: relative;
+}
+.tab-nav a .tab-icon { font-size: 1.5rem; line-height: 1; }
+.tab-nav a .tab-label { font-size: 0.65rem; }
+.tab-nav a.active { color: var(--color-primary); }
+.tab-nav a.active::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 3px;
+  background: var(--color-primary);
+  border-radius: 0 0 3px 3px;
+}
+
+/* ── Badge ────────────────────────────────────────────── */
+
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.badge-new {
+  background: var(--color-secondary);
+  color: #fff;
+  animation: pop-in 0.3s ease;
+}
+
+/* ── XP Fly-up ───────────────────────────────────────── */
+
+.xp-flyup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-secondary);
+  pointer-events: none;
+  animation: xp-flyup 0.8s ease forwards;
+  z-index: 200;
+}
+
+/* ── Confetti dot ─────────────────────────────────────── */
+.confetti-dot {
+  position: fixed;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 300;
+  animation: fall 1.5s linear forwards;
+}

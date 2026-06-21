@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English Movers — Learn English</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div class="profile-screen">
+    <h1>🎓 English Movers</h1>
+    <p class="subtitle">Learn English every day! Cambridge Movers+</p>
+    <div class="profile-list" id="profile-list">
+      <!-- profiles injected here -->
+    </div>
+    <button class="add-profile-btn" id="add-btn">＋ Add Profile</button>
+  </div>
+
+  <!-- Add Profile Modal -->
+  <div class="modal-overlay" id="modal" style="display:none">
+    <div class="modal">
+      <h2>Create Profile</h2>
+      <label style="font-weight:700;font-size:0.9rem">Choose your avatar:</label>
+      <div class="modal-avatar-grid" id="avatar-grid"></div>
+      <label style="font-weight:700;font-size:0.9rem;display:block;margin-top:0.5rem">Your name:</label>
+      <input type="text" id="name-input" placeholder="Enter your name..." maxlength="20">
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
+        <button class="btn btn-primary" id="create-btn">Start Learning! 🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { getAllProfiles, createDefaultProfile, saveProfile } from './js/utils/storage.js';
+
+    const AVATARS = ['🐱','🐶','🦊','🐸','🦁','🐧','🦋','🐬','🦄','🐙','🐼','🦉','🐺','🦖','🐲'];
+    let selectedAvatar = AVATARS[0];
+
+    function renderProfiles() {
+      const profiles = getAllProfiles();
+      const list = document.getElementById('profile-list');
+
+      if (profiles.length === 0) {
+        list.innerHTML = `<p style="color:rgba(255,255,255,0.8);text-align:center">No profiles yet.<br>Create one to start!</p>`;
+        return;
+      }
+
+      list.innerHTML = profiles.map(p => `
+        <div class="profile-card" data-name="${p.profile.name}">
+          <div class="p-avatar">${p.profile.avatar}</div>
+          <div class="p-name">${p.profile.name}</div>
+          <div class="p-level">Lv.${p.profile.level} · ${p.profile.totalXP} XP</div>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('.profile-card').forEach(card => {
+        card.addEventListener('click', () => {
+          window.location.href = `app.html?profile=${encodeURIComponent(card.dataset.name)}`;
+        });
+      });
+    }
+
+    function openModal() {
+      const grid = document.getElementById('avatar-grid');
+      grid.innerHTML = AVATARS.map(a => `
+        <button class="modal-avatar-btn ${a === selectedAvatar ? 'selected' : ''}" data-avatar="${a}">${a}</button>
+      `).join('');
+
+      grid.querySelectorAll('.modal-avatar-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedAvatar = btn.dataset.avatar;
+          grid.querySelectorAll('.modal-avatar-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+        });
+      });
+
+      document.getElementById('name-input').value = '';
+      document.getElementById('modal').style.display = 'flex';
+      setTimeout(() => document.getElementById('name-input').focus(), 50);
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    function createProfile() {
+      const name = document.getElementById('name-input').value.trim();
+      if (!name) {
+        document.getElementById('name-input').focus();
+        document.getElementById('name-input').style.borderColor = 'var(--color-error)';
+        return;
+      }
+
+      const data = createDefaultProfile(name, selectedAvatar);
+      saveProfile(name, data);
+      closeModal();
+      renderProfiles();
+    }
+
+    document.getElementById('add-btn').addEventListener('click', openModal);
+    document.getElementById('cancel-btn').addEventListener('click', closeModal);
+    document.getElementById('create-btn').addEventListener('click', createProfile);
+    document.getElementById('name-input').addEventListener('keydown', e => { if (e.key === 'Enter') createProfile(); });
+    document.getElementById('modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    });
+
+    renderProfiles();
+  </script>
+</body>
+</html>
