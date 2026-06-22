@@ -21,14 +21,12 @@ function shuffle(a) {
 
 async function generateDailyTasks(state) {
   const today = getTodayStr();
-  if (state.daily.date === today && state.daily.tasks?.length > 0) {
-    return state.daily.tasks;
-  }
 
   const topicProgress = state.progress.topics || {};
   const sorted = TOPIC_ORDER.slice().sort((a, b) => {
     const aLast = topicProgress[a]?.lastPracticed || '0000-00-00';
     const bLast = topicProgress[b]?.lastPracticed || '0000-00-00';
+    if (aLast === bLast) return Math.random() - 0.5;
     return aLast.localeCompare(bLast);
   });
 
@@ -95,19 +93,17 @@ async function generateDailyTasks(state) {
 
 export async function renderDaily(container) {
   const state = getState();
-  const today = getTodayStr();
-  const needsGeneration = state.daily.date !== today || !state.daily.tasks?.length;
 
-  if (needsGeneration && getGeminiKey()) {
+  if (getGeminiKey()) {
     container.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:1rem">
         <div style="font-size:3rem;animation:pulse 1s infinite">🤖</div>
-        <p style="color:var(--color-text-light);font-size:1rem">Creating today's AI exercises...</p>
+        <p style="color:var(--color-text-light);font-size:1rem">Preparing your lesson...</p>
       </div>`;
   }
 
   const tasks = await generateDailyTasks(state);
-  const completed = state.daily.completedTasks || [];
+  const completed = [];
 
   // Find next incomplete task
   const nextIdx = tasks.findIndex(t => !completed.includes(t.id));

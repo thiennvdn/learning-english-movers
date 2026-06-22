@@ -89,8 +89,13 @@ export function renderSettings(container) {
   });
 
   document.getElementById('reset-btn').addEventListener('click', () => {
-    if (confirm(`Reset all data for "${state.profile.name}"?\n\nThis will delete all XP, streaks, and progress. This cannot be undone.`)) {
-      deleteProfile(getProfileName());
+    if (confirm(`Reset all data for "${state.profile.name}"?\n\nThis will delete all XP, streaks, progress and cached data. This cannot be undone.`)) {
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('movers_') || k.startsWith('dict_'))) keysToRemove.push(k);
+      }
+      keysToRemove.forEach(k => localStorage.removeItem(k));
       location.href = 'index.html';
     }
   });
