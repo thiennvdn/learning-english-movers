@@ -23,7 +23,7 @@ function showXPFly(amount) {
 export function renderVocabularySession(container, words, topicId, onComplete) {
   const rate = getTTSRate();
   const sessionWords = shuffle(words).slice(0, Math.min(10, words.length));
-  const phases = ['flashcards', 'match', 'fillblank', 'spelling'];
+  const phases = ['flashcards', 'match', 'fillblank', 'spelling', 'context'];
   let phaseIdx = 0;
 
   function nextPhase() {
@@ -34,9 +34,10 @@ export function renderVocabularySession(container, words, topicId, onComplete) {
     const phase = phases[phaseIdx++];
     container.innerHTML = '';
     if (phase === 'flashcards') renderFlashcards(container, sessionWords, topicId, rate, nextPhase);
-    else if (phase === 'match') renderMatch(container, sessionWords.slice(0, 4), topicId, rate, nextPhase);
+    else if (phase === 'match') renderMatch(container, sessionWords.slice(0, 6), topicId, rate, nextPhase);
     else if (phase === 'fillblank') renderFillBlank(container, sessionWords, topicId, rate, nextPhase);
-    else if (phase === 'spelling') renderSpelling(container, sessionWords.slice(0, 4), topicId, rate, nextPhase);
+    else if (phase === 'spelling') renderSpelling(container, sessionWords.slice(0, 6), topicId, rate, nextPhase);
+    else if (phase === 'context') renderContext(container, sessionWords, topicId, rate, nextPhase);
   }
 
   nextPhase();
@@ -169,7 +170,7 @@ function renderMatch(container, words, topicId, rate, onDone) {
 }
 
 function renderFillBlank(container, words, topicId, rate, onDone) {
-  const questions = shuffle(words).slice(0, Math.min(5, words.length));
+  const questions = shuffle(words).slice(0, Math.min(8, words.length));
   let idx = 0;
   let firstTry = true;
 
@@ -227,8 +228,92 @@ function renderFillBlank(container, words, topicId, rate, onDone) {
   show();
 }
 
+const CONTEXT_SENTENCES = {
+  animals: (w) => [`I saw a ${w.en} at the zoo yesterday.`, `The ${w.en} lives in the wild.`, `My favourite animal is the ${w.en}.`],
+  food:    (w) => [`I love eating ${w.en} for breakfast.`, `She bought some ${w.en} at the market.`, `Can I have a ${w.en}, please?`],
+  sports:  (w) => [`He is really good at ${w.en}.`, `We do ${w.en} every Saturday.`, `She won a trophy for ${w.en}.`],
+  school:  (w) => [`I forgot my ${w.en} at home today.`, `The teacher picked up the ${w.en}.`, `Please put your ${w.en} on the desk.`],
+  family:  (w) => [`My ${w.en} is very kind and funny.`, `I love spending time with my ${w.en}.`, `Her ${w.en} lives in another city.`],
+  clothes: (w) => [`She is wearing a red ${w.en} today.`, `I need a new ${w.en} for the winter.`, `He put on his ${w.en} and went out.`],
+  places:  (w) => [`We visited the ${w.en} last weekend.`, `There is a beautiful ${w.en} near my house.`, `Let's meet at the ${w.en} at noon.`],
+  transport:(w)=>[`We took the ${w.en} to the city centre.`, `The ${w.en} was very fast and comfortable.`, `I go to school by ${w.en} every day.`],
+  weather: (w) => [`It was ${w.en} all day yesterday.`, `I don't like ${w.en} weather at all.`, `It looks ${w.en} outside — take an umbrella!`],
+  body:    (w) => [`My ${w.en} hurts after playing football.`, `She raised her ${w.en} to answer the question.`, `Wash your ${w.en} before you eat!`],
+  colors:  (w) => [`My favourite colour is ${w.en}.`, `She painted the wall ${w.en}.`, `The ${w.en} flowers are beautiful.`],
+  numbers: (w) => [`There are ${w.en} students in my class.`, `I have ${w.en} pets at home.`, `Please write the number ${w.en}.`],
+};
+
+function renderContext(container, words, topicId, rate, onDone) {
+  const questions = shuffle(words).slice(0, Math.min(5, words.length));
+  let idx = 0;
+
+  function show() {
+    if (idx >= questions.length) { onDone(); return; }
+    const w = questions[idx];
+    const sentences = (CONTEXT_SENTENCES[topicId] || CONTEXT_SENTENCES.animals)(w);
+    const sentence = sentences[Math.floor(Math.random() * sentences.length)];
+    const others = words.filter(x => x.en !== w.en);
+    const distractors = shuffle(others).slice(0, 2).map(x => ({ en: x.en, vi: x.vi, emoji: x.emoji }));
+    const opts = shuffle([{ en: w.en, vi: w.vi, emoji: w.emoji }, ...distractors]);
+
+    container.innerHTML = `
+      <div class="exercise-wrapper slide-up">
+        <div class="exercise-header">
+          <h3>💬 Word in Context</h3>
+          <span class="ex-counter">${idx + 1} / ${questions.length}</span>
+        </div>
+        <div class="sentence-display" style="font-size:1.1rem;line-height:1.8">
+          ${sentence.replace(new RegExp(`\\b${w.en}\\b`, 'i'), `<span style="background:var(--color-primary);color:#fff;padding:0.1rem 0.5rem;border-radius:6px;font-weight:800">${w.en}</span>`)}
+        </div>
+        <button class="btn listen-btn" id="ctx-listen" style="margin:0.6rem auto">🔊 Listen</button>
+        <p style="text-align:center;color:var(--color-text-light);font-size:0.9rem;font-weight:700">What does "<strong>${w.en}</strong>" mean in Vietnamese?</p>
+        <div class="options-grid">
+          ${opts.map(opt => `
+            <button class="option-btn" data-val="${opt.en}" style="font-size:1.05rem">
+              ${opt.emoji} ${opt.vi}
+            </button>
+          `).join('')}
+        </div>
+        <div id="ctx-feedback"></div>
+      </div>
+    `;
+
+    speak(sentence, rate);
+    document.getElementById('ctx-listen').addEventListener('click', () => speak(sentence, rate));
+
+    let firstTry = true;
+    container.querySelectorAll('.option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        container.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+        const isCorrect = btn.dataset.val === w.en;
+        const state = getState();
+
+        if (isCorrect) {
+          btn.classList.add('correct');
+          playDing();
+          const xp = addXP(state, firstTry ? 'correct_first' : 'correct_retry');
+          save();
+          showXPFly(xp);
+          document.getElementById('ctx-feedback').innerHTML = `<div class="feedback-box correct">✅ "${w.en}" = "${w.vi}"</div>`;
+          setTimeout(() => { idx++; show(); }, 1200);
+        } else {
+          btn.classList.add('wrong');
+          container.querySelectorAll(`.option-btn[data-val="${w.en}"]`).forEach(b => b.classList.add('reveal'));
+          playBuzz();
+          firstTry = false;
+          save();
+          document.getElementById('ctx-feedback').innerHTML = `<div class="feedback-box wrong">❌ "${w.en}" = "${w.vi}"</div>`;
+          setTimeout(() => { idx++; show(); }, 1500);
+        }
+      });
+    });
+  }
+
+  show();
+}
+
 function renderSpelling(container, words, topicId, rate, onDone) {
-  const questions = shuffle(words).slice(0, Math.min(4, words.length));
+  const questions = shuffle(words).slice(0, Math.min(6, words.length));
   let idx = 0;
 
   function show() {

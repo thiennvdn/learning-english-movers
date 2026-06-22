@@ -33,22 +33,32 @@ function generateDailyTasks(state) {
 
   const t1 = sorted[0];
   const t2 = sorted[1];
+  const t3 = sorted[2];
 
-  const words1 = shuffle(TOPICS[t1].words).slice(0, 5);
-  const words2 = shuffle(TOPICS[t2].words).slice(0, 5);
+  const words1 = shuffle(TOPICS[t1].words).slice(0, 8);
+  const words2 = shuffle(TOPICS[t2].words).slice(0, 8);
+  const words3 = shuffle(TOPICS[t3].words).slice(0, 6);
 
   const listen1 = LISTENING_EXERCISES.filter(e => e.topic === t1);
   const listen2 = LISTENING_EXERCISES.filter(e => e.topic === t2);
-  const allListening = shuffle([...listen1, ...listen2]).slice(0, 2);
+  const listen3 = LISTENING_EXERCISES.filter(e => e.topic === t3);
+  const listenPool = shuffle([...listen1, ...listen2, ...listen3]);
+  const allListening1 = listenPool.slice(0, 2);
+  const allListening2 = listenPool.slice(2, 4);
 
-  const grammarPool = shuffle([...GRAMMAR_EXERCISES]).slice(0, 5);
-  const writingWords = shuffle([...words1, ...words2]);
+  const grammarPool = shuffle([...GRAMMAR_EXERCISES]);
+  const grammarSet1 = grammarPool.slice(0, 8);
+  const grammarSet2 = grammarPool.slice(8, 16);
+  const writingWords = shuffle([...words1, ...words2, ...words3]);
 
   const tasks = [
     { type: 'vocabulary', topic: t1, label: `📖 ${TOPICS[t1].name} Vocabulary`, words: words1, id: `vocab_${t1}` },
     { type: 'vocabulary', topic: t2, label: `📖 ${TOPICS[t2].name} Vocabulary`, words: words2, id: `vocab_${t2}` },
-    { type: 'listening', label: '🎧 Listening', exercises: allListening, id: 'listening' },
-    { type: 'grammar', label: '📝 Grammar', exercises: grammarPool, id: 'grammar' },
+    { type: 'listening', label: '🎧 Listening — Part 1', exercises: allListening1, id: 'listening1' },
+    { type: 'grammar', label: '📝 Grammar — Set 1', exercises: grammarSet1, id: 'grammar1' },
+    { type: 'vocabulary', topic: t3, label: `📖 ${TOPICS[t3].name} Vocabulary`, words: words3, id: `vocab_${t3}` },
+    { type: 'listening', label: '🎧 Listening — Part 2', exercises: allListening2, id: 'listening2' },
+    { type: 'grammar', label: '📝 Grammar — Set 2', exercises: grammarSet2, id: 'grammar2' },
     { type: 'writing', label: '✏️ Writing', words: writingWords, id: 'writing' },
   ];
 

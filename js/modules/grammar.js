@@ -30,7 +30,7 @@ export function renderGrammarSession(container, exercises, onComplete) {
     return;
   }
 
-  const items = shuffle(exercises).slice(0, Math.min(5, exercises.length));
+  const items = shuffle(exercises).slice(0, Math.min(8, exercises.length));
   let idx = 0;
 
   function next() {
