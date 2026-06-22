@@ -88,15 +88,17 @@ function renderMC(container, ex, idx, total, onNext) {
         showXPFly(xp);
         speak(ex.sentence.replace('___', ex.options[ex.correct]), rate);
         document.getElementById('feedback').innerHTML = `<div class="feedback-box correct">✅ ${ex.explanation}</div>`;
-        setTimeout(onNext, 1500);
+        setTimeout(onNext, 1400);
       } else {
         btn.classList.add('wrong');
         container.querySelectorAll(`.option-btn[data-idx="${ex.correct}"]`).forEach(b => b.classList.add('reveal'));
         playBuzz();
         firstTry = false;
         save();
-        document.getElementById('feedback').innerHTML = `<div class="feedback-box wrong">❌ ${ex.explanation}</div>`;
-        setTimeout(onNext, 2000);
+        document.getElementById('feedback').innerHTML = `
+          <div class="feedback-box wrong">❌ ${ex.explanation}</div>
+          <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
+        document.querySelector('.next-btn').addEventListener('click', onNext);
       }
     });
   });
@@ -131,19 +133,23 @@ function renderFillBlank(container, ex, idx, total, onNext) {
 
     if (val === correct) {
       input.classList.add('correct');
+      document.getElementById('check-btn').disabled = true;
       playDing();
       const xp = addXP(state, 'correct_first');
       save();
       showXPFly(xp);
       speak(ex.sentence.replace('___', ex.correct), rate);
       document.getElementById('feedback').innerHTML = `<div class="feedback-box correct">✅ ${ex.explanation}</div>`;
-      setTimeout(onNext, 1500);
+      setTimeout(onNext, 1400);
     } else {
       input.classList.add('wrong');
+      document.getElementById('check-btn').disabled = true;
       playBuzz();
       save();
-      document.getElementById('feedback').innerHTML = `<div class="feedback-box wrong">❌ Answer: "<strong>${ex.correct}</strong>" — ${ex.explanation}</div>`;
-      setTimeout(onNext, 2000);
+      document.getElementById('feedback').innerHTML = `
+        <div class="feedback-box wrong">❌ Answer: <strong>${ex.correct}</strong> — ${ex.explanation}</div>
+        <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
+      document.querySelector('.next-btn').addEventListener('click', onNext);
     }
   }
 
@@ -187,13 +193,15 @@ function renderTrueFalse(container, ex, idx, total, onNext) {
         save();
         showXPFly(xp);
         document.getElementById('feedback').innerHTML = `<div class="feedback-box correct">✅ ${ex.explanation}</div>`;
-        setTimeout(onNext, 1500);
+        setTimeout(onNext, 1400);
       } else {
         btn.style.outline = '3px solid var(--color-error)';
         playBuzz();
         save();
-        document.getElementById('feedback').innerHTML = `<div class="feedback-box wrong">❌ ${ex.explanation}</div>`;
-        setTimeout(onNext, 2000);
+        document.getElementById('feedback').innerHTML = `
+          <div class="feedback-box wrong">❌ ${ex.explanation}</div>
+          <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
+        document.querySelector('.next-btn').addEventListener('click', onNext);
       }
     });
   });

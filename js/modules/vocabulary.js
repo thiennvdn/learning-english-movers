@@ -250,8 +250,11 @@ function renderFillBlank(container, words, topicId, rate, dictCache, onDone) {
           container.querySelectorAll(`.option-btn[data-val="${w.en}"]`).forEach(b => b.classList.add('reveal'));
           playBuzz();
           firstTry = false;
-          document.getElementById('feedback').innerHTML = `<div class="feedback-box wrong">❌ The answer is "<strong>${w.en}</strong>"</div>`;
-          setTimeout(() => { idx++; show(); }, 1600);
+          const defHint = dict?.definition ? `<br><small>${shortDef(dict.definition)}</small>` : '';
+          document.getElementById('feedback').innerHTML = `
+            <div class="feedback-box wrong">❌ The answer is <strong>${w.en}</strong> ${hint}${defHint}</div>
+            <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
+          document.querySelector('.next-btn').addEventListener('click', () => { idx++; show(); });
         }
       });
     });
@@ -359,8 +362,11 @@ function renderContext(container, words, topicId, rate, dictCache, onDone) {
           playBuzz();
           firstTry = false;
           save();
-          document.getElementById('ctx-feedback').innerHTML = `<div class="feedback-box wrong">❌ The word is "<strong>${w.en}</strong>"</div>`;
-          setTimeout(() => { idx++; show(); }, 1600);
+          const defHint = dict?.definition ? `<br><small>${shortDef(dict.definition)}</small>` : '';
+          document.getElementById('ctx-feedback').innerHTML = `
+            <div class="feedback-box wrong">❌ The word is <strong>${w.en}</strong>${dict?.partOfSpeech ? ` (${dict.partOfSpeech})` : ''}${defHint}</div>
+            <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
+          document.querySelector('.next-btn').addEventListener('click', () => { idx++; show(); });
         }
       });
     });
@@ -406,6 +412,7 @@ function renderSpelling(container, words, topicId, rate, dictCache, onDone) {
       const correct = w.en.toLowerCase();
       if (val === correct) {
         input.classList.add('correct');
+        document.getElementById('spell-check').disabled = true;
         playDing();
         const xp = addXP(getState(), 'correct_first');
         save();
@@ -415,10 +422,13 @@ function renderSpelling(container, words, topicId, rate, dictCache, onDone) {
       } else {
         input.classList.add('wrong');
         input.classList.remove('correct');
+        document.getElementById('spell-check').disabled = true;
         playBuzz();
         playWord(w, dictCache, rate);
-        document.getElementById('spell-feedback').innerHTML = `<div class="feedback-box wrong">❌ Correct spelling: <strong>${w.en}</strong></div>`;
-        setTimeout(() => { idx++; show(); }, 1800);
+        document.getElementById('spell-feedback').innerHTML = `
+          <div class="feedback-box wrong">❌ Correct spelling: <strong>${w.en}</strong>${dictCache[w.en]?.phonetic ? ` ${dictCache[w.en].phonetic}` : ''}</div>
+          <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
+        document.querySelector('.next-btn').addEventListener('click', () => { idx++; show(); });
       }
     }
 

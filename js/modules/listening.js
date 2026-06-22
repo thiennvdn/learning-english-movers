@@ -95,9 +95,11 @@ function renderListenChoose(container, ex, idx, total, onNext) {
         playBuzz();
         firstTry = false;
         save();
-        document.getElementById('feedback').innerHTML = `<div class="feedback-box wrong">❌ Listen again!</div>`;
         speak(ex.text, rate * 0.85);
-        setTimeout(onNext, 2000);
+        document.getElementById('feedback').innerHTML = `
+          <div class="feedback-box wrong">❌ The correct answer is <strong>${ex.optionLabels?.[ex.correct] || ex.correct}</strong>. Listen again above!</div>
+          <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
+        document.querySelector('.next-btn').addEventListener('click', onNext);
       }
     });
   });
@@ -157,8 +159,10 @@ function renderListenAnswer(container, ex, idx, total, onNext) {
       playBuzz();
       firstTry = false;
       save();
-      document.getElementById('feedback').innerHTML = `<div class="feedback-box wrong">❌ The correct answer is "${ex.options[ex.correct]}"</div>`;
-      setTimeout(onNext, 1800);
+      document.getElementById('feedback').innerHTML = `
+        <div class="feedback-box wrong">❌ Correct answer: <strong>${ex.options[ex.correct]}</strong></div>
+        <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
+      document.querySelector('.next-btn').addEventListener('click', onNext);
     }
   });
 }
@@ -243,13 +247,18 @@ function renderDictationLite(container, ex, idx, total, onNext) {
       const xp = addXP(state, 'correct_first');
       save();
       showXPFly(xp);
+      document.getElementById('check-btn').disabled = true;
+      document.getElementById('clear-btn').disabled = true;
       document.getElementById('feedback').innerHTML = `<div class="feedback-box correct">✅ Perfect sentence!</div>`;
       setTimeout(onNext, 1200);
     } else {
       playBuzz();
       save();
-      document.getElementById('feedback').innerHTML = `<div class="feedback-box wrong">❌ Correct: "${ex.words.join(' ')}"</div>`;
-      setTimeout(onNext, 2000);
+      document.getElementById('check-btn').disabled = true;
+      document.getElementById('feedback').innerHTML = `
+        <div class="feedback-box wrong">❌ Correct sentence: <strong>"${ex.words.join(' ')}"</strong></div>
+        <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
+      document.querySelector('.next-btn').addEventListener('click', onNext);
     }
   });
 }
