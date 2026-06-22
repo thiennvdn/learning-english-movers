@@ -99,7 +99,9 @@ function renderListenChoose(container, ex, idx, total, onNext) {
         document.getElementById('feedback').innerHTML = `
           <div class="feedback-box wrong">❌ The correct answer is <strong>${ex.optionLabels?.[ex.correct] || ex.correct}</strong>. Listen again above!</div>
           <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
-        document.querySelector('.next-btn').addEventListener('click', onNext);
+        const nb = document.querySelector('.next-btn');
+      nb.addEventListener('click', onNext);
+      nb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     });
   });
@@ -162,7 +164,9 @@ function renderListenAnswer(container, ex, idx, total, onNext) {
       document.getElementById('feedback').innerHTML = `
         <div class="feedback-box wrong">❌ Correct answer: <strong>${ex.options[ex.correct]}</strong></div>
         <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
-      document.querySelector('.next-btn').addEventListener('click', onNext);
+      const nb = document.querySelector('.next-btn');
+      nb.addEventListener('click', onNext);
+      nb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   });
 }
@@ -258,7 +262,9 @@ function renderDictationLite(container, ex, idx, total, onNext) {
       document.getElementById('feedback').innerHTML = `
         <div class="feedback-box wrong">❌ Correct sentence: <strong>"${ex.words.join(' ')}"</strong></div>
         <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
-      document.querySelector('.next-btn').addEventListener('click', onNext);
+      const nb = document.querySelector('.next-btn');
+      nb.addEventListener('click', onNext);
+      nb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   });
 }

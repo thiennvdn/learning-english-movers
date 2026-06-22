@@ -98,7 +98,9 @@ function renderMC(container, ex, idx, total, onNext) {
         document.getElementById('feedback').innerHTML = `
           <div class="feedback-box wrong">❌ ${ex.explanation}</div>
           <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
-        document.querySelector('.next-btn').addEventListener('click', onNext);
+        const nb = document.querySelector('.next-btn');
+        nb.addEventListener('click', onNext);
+        nb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     });
   });
@@ -149,7 +151,9 @@ function renderFillBlank(container, ex, idx, total, onNext) {
       document.getElementById('feedback').innerHTML = `
         <div class="feedback-box wrong">❌ Answer: <strong>${ex.correct}</strong> — ${ex.explanation}</div>
         <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
-      document.querySelector('.next-btn').addEventListener('click', onNext);
+      const nb2 = document.querySelector('.next-btn');
+      nb2.addEventListener('click', onNext);
+      nb2.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
 
@@ -201,7 +205,9 @@ function renderTrueFalse(container, ex, idx, total, onNext) {
         document.getElementById('feedback').innerHTML = `
           <div class="feedback-box wrong">❌ ${ex.explanation}</div>
           <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
-        document.querySelector('.next-btn').addEventListener('click', onNext);
+        const nb = document.querySelector('.next-btn');
+        nb.addEventListener('click', onNext);
+        nb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     });
   });

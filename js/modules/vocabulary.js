@@ -119,9 +119,11 @@ function renderFlashcards(container, words, topicId, rate, dictCache, onDone) {
       document.getElementById('fc-card').style.display = 'none';
       document.getElementById('fc-back').style.display = 'flex';
       document.getElementById('fc-flip').style.display = 'none';
-      document.getElementById('fc-next').style.display = '';
+      const nextBtn = document.getElementById('fc-next');
+      nextBtn.style.display = '';
       playDing();
       showXPFly(xp);
+      nextBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
     document.getElementById('fc-next').addEventListener('click', () => { idx++; show(); });
   }
@@ -254,7 +256,9 @@ function renderFillBlank(container, words, topicId, rate, dictCache, onDone) {
           document.getElementById('feedback').innerHTML = `
             <div class="feedback-box wrong">❌ The answer is <strong>${w.en}</strong> ${hint}${defHint}</div>
             <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
-          document.querySelector('.next-btn').addEventListener('click', () => { idx++; show(); });
+          const nb = document.querySelector('.next-btn');
+          nb.addEventListener('click', () => { idx++; show(); });
+          nb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       });
     });
@@ -366,7 +370,9 @@ function renderContext(container, words, topicId, rate, dictCache, onDone) {
           document.getElementById('ctx-feedback').innerHTML = `
             <div class="feedback-box wrong">❌ The word is <strong>${w.en}</strong>${dict?.partOfSpeech ? ` (${dict.partOfSpeech})` : ''}${defHint}</div>
             <button class="btn btn-primary next-btn" style="margin-top:0.8rem;width:100%">Got it! Next →</button>`;
-          document.querySelector('.next-btn').addEventListener('click', () => { idx++; show(); });
+          const nb = document.querySelector('.next-btn');
+          nb.addEventListener('click', () => { idx++; show(); });
+          nb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       });
     });
