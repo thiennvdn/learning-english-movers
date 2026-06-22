@@ -31,10 +31,8 @@ html { font-size: 18px; }
 
 body {
   font-family: 'Nunito', 'Segoe UI', sans-serif;
-  background: var(--color-bg);
-  background-image:
-    radial-gradient(circle at 20% 10%, rgba(108,99,255,0.08) 0%, transparent 40%),
-    radial-gradient(circle at 80% 90%, rgba(255,108,200,0.07) 0%, transparent 40%);
+  background: linear-gradient(145deg, #E8EAFF 0%, #EDE8FF 50%, #E8F0FF 100%);
+  background-attachment: fixed;
   color: var(--color-text);
   min-height: 100dvh;
   overflow-x: hidden;
@@ -719,16 +717,19 @@ h3 { font-size: 1.1rem; font-weight: 700; }
   .app-layout { flex-direction: row; }
 
   .tab-nav {
-    width: 210px;
+    width: 220px;
+    flex-shrink: 0;
     flex-direction: column;
     height: 100dvh;
     position: sticky;
     top: 0;
     bottom: auto;
+    left: auto;
+    right: auto;
     border-top: none;
     border-right: none;
     background: linear-gradient(180deg, #2B2955 0%, #1A1840 100%);
-    box-shadow: 4px 0 24px rgba(0,0,0,0.2);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.25);
     padding: 1.5rem 0;
     gap: 0.3rem;
     justify-content: flex-start;
@@ -764,8 +765,9 @@ h3 { font-size: 1.1rem; font-weight: 700; }
   .tab-nav a.active::after { display: none; }
 
   .screen-container {
-    padding: 2rem;
+    padding: 2rem 2.5rem;
     padding-bottom: 2rem;
+    background: var(--color-bg);
   }
 
   .topic-grid { grid-template-columns: repeat(4, 1fr); }
