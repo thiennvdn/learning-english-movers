@@ -38,6 +38,7 @@ export function createDefaultProfile(name, avatar) {
       xpHistory: []
     },
     badges: [],
-    settings: { ttsRate: 1.0 }
+    customWords: [],
+    settings: { ttsRate: 1.0, customWordsEnabled: true }
   };
 }

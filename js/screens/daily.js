@@ -8,6 +8,7 @@ import { renderVocabularySession } from '../modules/vocabulary.js';
 import { renderListeningSession } from '../modules/listening.js';
 import { renderGrammarSession } from '../modules/grammar.js';
 import { renderWritingSession } from '../modules/writing.js';
+import { generateGrammarExercises, generateListeningExercises, getGeminiKey } from '../utils/gemini.js';
 
 function shuffle(a) {
   const arr = [...a];
@@ -18,7 +19,7 @@ function shuffle(a) {
   return arr;
 }
 
-function generateDailyTasks(state) {
+async function generateDailyTasks(state) {
   const today = getTodayStr();
   if (state.daily.date === today && state.daily.tasks?.length > 0) {
     return state.daily.tasks;
@@ -39,26 +40,51 @@ function generateDailyTasks(state) {
   const words2 = shuffle(TOPICS[t2].words).slice(0, 8);
   const words3 = shuffle(TOPICS[t3].words).slice(0, 6);
 
-  const listen1 = LISTENING_EXERCISES.filter(e => e.topic === t1);
-  const listen2 = LISTENING_EXERCISES.filter(e => e.topic === t2);
-  const listen3 = LISTENING_EXERCISES.filter(e => e.topic === t3);
-  const listenPool = shuffle([...listen1, ...listen2, ...listen3]);
+  // Fetch AI exercises in parallel (null if no key or API fails)
+  const topicHint = [TOPICS[t1].name, TOPICS[t2].name, TOPICS[t3].name].join(', ');
+  const topicNames = [t1, t2, t3];
+  const [aiGrammar, aiListening] = getGeminiKey()
+    ? await Promise.all([
+        generateGrammarExercises(topicHint),
+        generateListeningExercises(topicNames)
+      ])
+    : [null, null];
+
+  // Grammar: prefer AI (up to 16), fallback to hardcoded
+  const grammarSource = aiGrammar?.length >= 8 ? aiGrammar : GRAMMAR_EXERCISES;
+  const grammarPool = shuffle([...grammarSource]);
+  const grammarSet1 = grammarPool.slice(0, 8);
+  const grammarSet2 = grammarPool.slice(8, 16);
+
+  // Listening: prefer AI (needs ≥4), fallback to hardcoded
+  let listenPool;
+  if (aiListening?.length >= 4) {
+    listenPool = shuffle([...aiListening]);
+  } else {
+    const listen1 = LISTENING_EXERCISES.filter(e => e.topic === t1);
+    const listen2 = LISTENING_EXERCISES.filter(e => e.topic === t2);
+    const listen3 = LISTENING_EXERCISES.filter(e => e.topic === t3);
+    listenPool = shuffle([...listen1, ...listen2, ...listen3]);
+  }
   const allListening1 = listenPool.slice(0, 2);
   const allListening2 = listenPool.slice(2, 4);
 
-  const grammarPool = shuffle([...GRAMMAR_EXERCISES]);
-  const grammarSet1 = grammarPool.slice(0, 8);
-  const grammarSet2 = grammarPool.slice(8, 16);
   const writingWords = shuffle([...words1, ...words2, ...words3]);
+  const aiLabel = getGeminiKey() && aiGrammar ? ' ✨' : '';
+
+  const customWords = state.customWords || [];
+  const customEnabled = state.settings?.customWordsEnabled ?? true;
+  const includeCustom = customEnabled && customWords.length >= 4;
 
   const tasks = [
     { type: 'vocabulary', topic: t1, label: `📖 ${TOPICS[t1].name} Vocabulary`, words: words1, id: `vocab_${t1}` },
     { type: 'vocabulary', topic: t2, label: `📖 ${TOPICS[t2].name} Vocabulary`, words: words2, id: `vocab_${t2}` },
-    { type: 'listening', label: '🎧 Listening — Part 1', exercises: allListening1, id: 'listening1' },
-    { type: 'grammar', label: '📝 Grammar — Set 1', exercises: grammarSet1, id: 'grammar1' },
+    { type: 'listening', label: `🎧 Listening — Part 1${aiLabel}`, exercises: allListening1, id: 'listening1' },
+    { type: 'grammar', label: `📝 Grammar — Set 1${aiLabel}`, exercises: grammarSet1, id: 'grammar1' },
+    ...(includeCustom ? [{ type: 'vocabulary', topic: '_custom', label: '⭐ My Words', words: shuffle(customWords).slice(0, 8), id: 'vocab_custom' }] : []),
     { type: 'vocabulary', topic: t3, label: `📖 ${TOPICS[t3].name} Vocabulary`, words: words3, id: `vocab_${t3}` },
-    { type: 'listening', label: '🎧 Listening — Part 2', exercises: allListening2, id: 'listening2' },
-    { type: 'grammar', label: '📝 Grammar — Set 2', exercises: grammarSet2, id: 'grammar2' },
+    { type: 'listening', label: `🎧 Listening — Part 2${aiLabel}`, exercises: allListening2, id: 'listening2' },
+    { type: 'grammar', label: `📝 Grammar — Set 2${aiLabel}`, exercises: grammarSet2, id: 'grammar2' },
     { type: 'writing', label: '✏️ Writing', words: writingWords, id: 'writing' },
   ];
 
@@ -67,9 +93,20 @@ function generateDailyTasks(state) {
   return tasks;
 }
 
-export function renderDaily(container) {
+export async function renderDaily(container) {
   const state = getState();
-  const tasks = generateDailyTasks(state);
+  const today = getTodayStr();
+  const needsGeneration = state.daily.date !== today || !state.daily.tasks?.length;
+
+  if (needsGeneration && getGeminiKey()) {
+    container.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:1rem">
+        <div style="font-size:3rem;animation:pulse 1s infinite">🤖</div>
+        <p style="color:var(--color-text-light);font-size:1rem">Creating today's AI exercises...</p>
+      </div>`;
+  }
+
+  const tasks = await generateDailyTasks(state);
   const completed = state.daily.completedTasks || [];
 
   // Find next incomplete task

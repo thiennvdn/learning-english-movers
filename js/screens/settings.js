@@ -1,5 +1,6 @@
 import { getState, getProfileName, save } from '../state.js';
 import { deleteProfile } from '../utils/storage.js';
+import { clearAICache } from '../utils/gemini.js';
 
 const AVATARS = ['🐱','🐶','🦊','🐸','🦁','🐧','🦋','🐬','🦄','🐙','🐼','🦉','🐺','🦖','🐲'];
 
@@ -38,6 +39,17 @@ export function renderSettings(container) {
         </div>
       </div>
 
+      <div class="settings-section">
+        <h2>👨‍👩‍👧 Parent Mode</h2>
+        <p style="color:var(--color-text-light);font-size:0.85rem;margin-bottom:0.8rem">
+          Add custom vocabulary for your child, view their progress, and manage settings.
+        </p>
+        <button class="btn btn-primary" id="parent-btn" style="width:100%">🔐 Enter Parent Mode</button>
+        <button class="btn" id="clear-cache-btn" style="width:100%;margin-top:0.5rem;font-size:0.85rem;color:var(--color-text-light)">
+          🔄 Refresh AI exercises
+        </button>
+      </div>
+
       <div class="settings-section danger-zone">
         <h2 style="color:var(--color-error)">⚠️ Danger Zone</h2>
         <p style="color:var(--color-text-light);font-size:0.85rem;margin-bottom:0.8rem">
@@ -63,6 +75,17 @@ export function renderSettings(container) {
       save();
       renderSettings(container);
     });
+  });
+
+  document.getElementById('parent-btn').addEventListener('click', () => {
+    location.hash = '#parent';
+  });
+
+  document.getElementById('clear-cache-btn').addEventListener('click', () => {
+    clearAICache();
+    const btn = document.getElementById('clear-cache-btn');
+    btn.textContent = '✅ Done! Go to Daily for new exercises';
+    btn.disabled = true;
   });
 
   document.getElementById('reset-btn').addEventListener('click', () => {

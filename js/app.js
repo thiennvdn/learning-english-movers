@@ -6,6 +6,7 @@ import { renderLearn } from './screens/learn.js';
 import { renderDaily } from './screens/daily.js';
 import { renderProgress } from './screens/progress.js';
 import { renderSettings } from './screens/settings.js';
+import { renderParent } from './screens/parent.js';
 
 const SCREENS = {
   home: renderHome,
@@ -13,6 +14,7 @@ const SCREENS = {
   learn: renderLearn,
   progress: renderProgress,
   settings: renderSettings,
+  parent: renderParent,
 };
 
 async function init() {
