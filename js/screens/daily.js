@@ -2,7 +2,7 @@ import { TOPICS, TOPIC_ORDER } from '../data/vocabulary.js';
 import { GRAMMAR_EXERCISES } from '../data/grammar.js';
 import { LISTENING_EXERCISES } from '../data/listening.js';
 import { getState, save } from '../state.js';
-import { addXP, checkBadges, getTodayStr } from '../utils/gamification.js';
+import { addXP, checkBadges, updateStreak, getTodayStr } from '../utils/gamification.js';
 import { playComplete } from '../utils/audio.js';
 import { renderVocabularySession } from '../modules/vocabulary.js';
 import { renderListeningSession } from '../modules/listening.js';
@@ -102,7 +102,8 @@ function renderTaskUI(container, tasks, currentIdx, state) {
 
   function onTaskComplete() {
     state.daily.completedTasks = [...(state.daily.completedTasks || []), task.id];
-    const xp = addXP(state, 'module_complete');
+    addXP(state, 'module_complete');
+    updateStreak(state);
     save();
 
     const nextIncomplete = tasks.findIndex(t => !(state.daily.completedTasks || []).includes(t.id));

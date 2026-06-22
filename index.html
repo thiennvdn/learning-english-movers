@@ -98,7 +98,7 @@
       const data = createDefaultProfile(name, selectedAvatar);
       saveProfile(name, data);
       closeModal();
-      renderProfiles();
+      window.location.href = `app.html?profile=${encodeURIComponent(name)}`;
     }
 
     document.getElementById('add-btn').addEventListener('click', openModal);

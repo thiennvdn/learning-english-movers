@@ -1,5 +1,5 @@
 import { loadProfile, getState } from './state.js';
-import { updateStreak, checkBadges } from './utils/gamification.js';
+import { checkBadges } from './utils/gamification.js';
 import { save } from './state.js';
 import { renderHome } from './screens/home.js';
 import { renderLearn } from './screens/learn.js';
@@ -24,8 +24,6 @@ async function init() {
   const state = getState();
   if (!state) { location.href = 'index.html'; return; }
 
-  // Update streak on open
-  updateStreak(state);
   checkBadges(state);
   save();
 
